@@ -1,14 +1,15 @@
+require('dotenv').config();
 const express = require('express')
 const app = express()
-const port = 8000
+const port = process.env.PORT || 8000;
 
-// user name: rentwheels-bd
-// password : 0YYZs2aA0CpwKNVR
 
 // get from mongodb website - connect side-> 
 
 const { MongoClient, ServerApiVersion } = require('mongodb');
-const uri = "mongodb+srv://rentwheels-bd:0YYZs2aA0CpwKNVR@cluster0.kybpity.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
+
+
+const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.kybpity.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
 const client = new MongoClient(uri, {
@@ -25,7 +26,7 @@ async function run() {
     await client.connect();
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
-      console.log("Pinged your deployment. You successfully connected to MongoDB!"); 
+      console.log("Pinged your deployment. You successfully RentWheels-BD connected to MongoDB!"); 
   } finally {
     // Ensures that the client will close when you finish/error
     // await client.close();
