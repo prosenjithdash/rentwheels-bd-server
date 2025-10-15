@@ -22,23 +22,26 @@ const client = new MongoClient(uri, {
 
 async function run() {
     try {
-      
-        // create database Ren collection for Vehicles
-        const vehiclesCollection = client.db('rentWheels-BD').collection('vehicles')
-
-
-
-
-
-
-
-        
 
         // Connect the client to the server	(optional starting in v4.7)
         await client.connect();
         // Send a ping to confirm a successful connection
         await client.db("admin").command({ ping: 1 });
         console.log("Pinged your deployment. You successfully RentWheels-BD connected to MongoDB!"); 
+
+      
+        // create database Ren collection for Vehicles
+        const vehiclesCollection = client.db('rentWheels_BD').collection('vehicles')
+
+        // get all VEHICLES from database
+        app.get('/vehicles', async (req, res) => {
+            const result = await vehiclesCollection.find().toArray();
+            res.send(result);
+        })
+
+
+
+
 
   } finally {
     // Ensures that the client will close when you finish/error
