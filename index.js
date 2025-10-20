@@ -1,12 +1,17 @@
 require('dotenv').config();
-const express = require('express')
-const app = express()
+const express = require('express');
+const cors = require('cors');
+const app = express();
 const port = process.env.PORT || 8000;
+
+// Enable CORS for all routes
+app.use(cors());
+app.use(express.json());
 
 
 // get from mongodb website - connect side-> 
 
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.kybpity.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
@@ -38,6 +43,26 @@ async function run() {
             const result = await vehiclesCollection.find().toArray();
             res.send(result);
         })
+
+        // get single VEHICLE from database
+        app.get('/vehicle/:id', async (req, res) => {
+        const id = req.params.id;
+
+        if (!ObjectId.isValid(id)) {
+            return res.status(400).send({ message: 'Invalid vehicle ID format' });
+        }
+
+        const query = { _id: new ObjectId(id) };
+        const result = await vehiclesCollection.findOne(query);
+
+        if (!result) {
+            return res.status(404).send({ message: 'Vehicle not found' });
+        }
+
+        res.send(result);
+        });
+
+
 
 
 
