@@ -38,9 +38,21 @@ async function run() {
         // create database Ren collection for Vehicles
         const vehiclesCollection = client.db('rentWheels_BD').collection('vehicles')
 
+        // // get all VEHICLES from database
+        // app.get('/vehicles', async (req, res) => {
+        //     const result = await vehiclesCollection.find().toArray();
+        //     res.send(result);
+        // })
+
         // get all VEHICLES from database
         app.get('/vehicles', async (req, res) => {
-            const result = await vehiclesCollection.find().toArray();
+            const category = req.query.category
+            // console.log(category)
+            let query = {}
+            if (category && category!=='null') {
+                query={category}
+            }
+            const result = await vehiclesCollection.find(query).toArray();
             res.send(result);
         })
 
