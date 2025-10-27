@@ -73,6 +73,14 @@ async function run() {
 
         res.send(result);
         });
+      
+      // Post Vehicle data
+      app.post('/vehicle',async (req, res) => {
+        const vehicleData = req.body;
+        const result =await vehiclesCollection.insertOne(vehicleData)
+        res.send(result)
+
+      })
 
 
 
