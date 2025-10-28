@@ -83,6 +83,26 @@ async function run() {
       })
 
 
+      // ✅ Get all vehicles added by a specific host (My Listings)
+app.get('/my_listings/:email', async (req, res) => {
+  try {
+    const email = req.params.email;
+    let query = { "host.email": email }
+    const result = await vehiclesCollection.find(query).toArray();
+
+    if (!result || result.length === 0) {
+      return res.status(404).send({ message: 'No vehicles found for this host' });
+    }
+
+    res.send(result);
+  } catch (error) {
+    console.error('Error fetching host vehicles:', error);
+    res.status(500).send({ message: 'Failed to fetch host vehicles' });
+  }
+});
+
+
+
 
 
 
