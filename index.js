@@ -36,7 +36,11 @@ async function run() {
 
       
         // create database Ren collection for Vehicles
-        const vehiclesCollection = client.db('rentWheels_BD').collection('vehicles')
+      const vehiclesCollection = client.db('rentWheels_BD').collection('vehicles')
+      
+
+      // crate database User collection for User
+      const usersCollection = client.db('rentWheels_BD').collection('users')
 
         // // get all VEHICLES from database
         // app.get('/vehicles', async (req, res) => {
@@ -44,6 +48,39 @@ async function run() {
         //     res.send(result);
         // })
 
+      
+      // USER PART
+      // Post user data in db
+      app.put('/user', async (req, res) => {
+          const user = req.body;
+
+          // check if user already exists in db
+          const isExist = await usersCollection.findOne({ email: user?.email });
+          if (isExist) {
+            return res.send(isExist);
+          }
+
+          const query = { email: user?.email };
+          const updateDoc = {
+            $set: {
+              ...user,
+              timestamp: Date.now(),
+            },
+          };
+          const options = { upsert: true };
+
+          const result = await usersCollection.updateOne(query, updateDoc, options);
+          res.send(result);
+      });
+      
+      // get all users in db
+      app.get('/users', async(req, res) => {
+        const result = await usersCollection.find().toArray()
+         res.send (result)
+      })
+
+              
+      // VEHICLES PART
         // get all VEHICLES from database
         app.get('/vehicles', async (req, res) => {
             const category = req.query.category
