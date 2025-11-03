@@ -50,42 +50,53 @@ async function run() {
 
       
       // USER PART
-      // Post user data in db
+      // ✅ Save or update user data in DB
       app.put('/user', async (req, res) => {
+        try {
           const user = req.body;
+          const query = { email: user?.email };
 
           // check if user already exists in db
-        const isExist = await usersCollection.findOne({ email: user?.email });
-        
-        if (isExist) {
-          if (user.status == 'Requested') {
-            const result = await usersCollection.updateOne(query, { $set: { status: user?.status } })
-            return res.send(result)
+          const isExist = await usersCollection.findOne(query);
+
+          // ✅ if user already exists
+          if (isExist) {
+            // if same user again requests to become host
+            if (user.status === 'Requested') {
+              const result = await usersCollection.updateOne(query, {
+                $set: { status: user?.status },
+              });
+              return res.send(result); // ✅ updated successfully
+            } else {
+              // ✅ already exist, no update needed
+              return res.send(isExist); // tells frontend "Wait for approval" or already registered
             }
-        } else {
-            return res.send(isExist);
-       
           }
 
-          const query = { email: user?.email };
+          // ✅ save user for the first time
+          const options = { upsert: true };
           const updateDoc = {
             $set: {
               ...user,
               timestamp: Date.now(),
             },
           };
-          const options = { upsert: true };
 
           const result = await usersCollection.updateOne(query, updateDoc, options);
           res.send(result);
+        } catch (error) {
+          console.error('Error saving user:', error);
+          res.status(500).send({ message: 'Failed to save user data' });
+        }
       });
+
       
       // get all users in db
       app.get('/users', async(req, res) => {
         const result = await usersCollection.find().toArray()
          res.send (result)
       })
-
+ 
               
       // VEHICLES PART
         // get all VEHICLES from database
