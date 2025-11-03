@@ -55,9 +55,16 @@ async function run() {
           const user = req.body;
 
           // check if user already exists in db
-          const isExist = await usersCollection.findOne({ email: user?.email });
-          if (isExist) {
+        const isExist = await usersCollection.findOne({ email: user?.email });
+        
+        if (isExist) {
+          if (user.status == 'Requested') {
+            const result = await usersCollection.updateOne(query, { $set: { status: user?.status } })
+            return res.send(result)
+            }
+        } else {
             return res.send(isExist);
+       
           }
 
           const query = { email: user?.email };
