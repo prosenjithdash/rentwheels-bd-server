@@ -96,6 +96,13 @@ async function run() {
         const result = await usersCollection.find().toArray()
          res.send (result)
       })
+
+      // get a user info by email from db
+      app.get('/user/:email', async (req, res) => {
+        const email = req.params.email
+        const result = await usersCollection.findOne({email})
+        res.send(result)
+      })
  
               
       // VEHICLES PART
