@@ -103,6 +103,36 @@ async function run() {
         const result = await usersCollection.findOne({email})
         res.send(result)
       })
+
+      // update a user role
+      app.patch('/users/update/:email', async (req, res) => {
+        const email = req.params.email
+        const user = req.body
+        const query = { email }
+        const updateDoc = {
+          $set: { ...user, timestamp: Date.now() },
+        }
+        const result = await usersCollection.updateOne(query, updateDoc)
+        res.send(result)
+      })
+
+      // Delete a user by email
+      app.delete('/users/:email', async (req, res) => {
+        try {
+          const email = req.params.email;
+          const result = await usersCollection.deleteOne({ email });
+
+          if (result.deletedCount === 0) {
+            return res.status(404).send({ message: 'User not found' });
+          }
+
+          res.send({ message: 'User deleted successfully' });
+        } catch (error) {
+          console.error('Error deleting user:', error);
+          res.status(500).send({ message: 'Failed to delete user' });
+        }
+      });
+
  
               
       // VEHICLES PART
