@@ -1,22 +1,24 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
+const jwt = require('jsonwebtoken');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
+const cookieParser = require('cookie-parser');
 const app = express();
 const port = process.env.PORT || 8000;
 
-// Enable CORS for all routes
-app.use(cors());
+// 🧩 Middleware
+app.use(cors({
+  origin: ['http://localhost:5173', 'http://localhost:5174'],
+  credentials: true,
+}));
 app.use(express.json());
+app.use(cookieParser());
 
 
-// get from mongodb website - connect side-> 
-
-const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
-
-
+// MongoDB Connection
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.kybpity.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
 
-// Create a MongoClient with a MongoClientOptions object to set the Stable API version
 const client = new MongoClient(uri, {
   serverApi: {
     version: ServerApiVersion.v1,
@@ -24,6 +26,23 @@ const client = new MongoClient(uri, {
     deprecationErrors: true,
   }
 });
+
+// 🛡️ Verify JWT Token Middleware
+const verifyToken = async (req, res, next) => {
+  const token = req.cookies?.token;
+  console.log(token)
+
+  if (!token) {
+    return res.status(401).send({ message: 'Unauthorized access: No token provided' });
+  }
+  jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
+    if (err) {
+      return res.status(403).send({ message: 'Forbidden: Invalid token' });
+    }
+    req.user = decoded;
+    next()
+  });
+};
 
 async function run() {
     try {
@@ -35,14 +54,54 @@ async function run() {
         console.log("Pinged your deployment. You successfully RentWheels-BD connected to MongoDB!"); 
 
       
-        // create database Ren collection for Vehicles
+      // DB Collections
+      // create database for Vehicles collection  
       const vehiclesCollection = client.db('rentWheels_BD').collection('vehicles')
-      
-
-      // crate database User collection for User
+      // crate database for User collection
       const usersCollection = client.db('rentWheels_BD').collection('users')
 
-        // // get all VEHICLES from database
+      // Verify Admin middleware
+      const verifyAdmin = async (req, res, next) => {
+        const user = req.user
+        const query = { email: user?.email }
+        const result = await usersCollection.findOne(query)
+        if (!result || result?.role !== 'admin') {
+          return res.status(403).send({ message: 'Forbidden: Admin access only' })
+        }
+        next();
+
+      };
+       // auth related api
+    app.post('/jwt', async (req, res) => {
+      const user = req.body
+      const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, {
+        expiresIn: '365d',
+      })
+      res
+        .cookie('token', token, {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === 'production',
+          sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict',
+        })
+        .send({ success: true })
+    })
+    // Logout
+    app.get('/logout', async (req, res) => {
+      try {
+        res
+          .clearCookie('token', {
+            maxAge: 0,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict',
+          })
+          .send({ success: true })
+        console.log('Logout successful')
+      } catch (err) {
+        res.status(500).send(err)
+      }
+    })
+
+        // get all VEHICLES from database
         // app.get('/vehicles', async (req, res) => {
         //     const result = await vehiclesCollection.find().toArray();
         //     res.send(result);
@@ -51,7 +110,7 @@ async function run() {
       
       // USER PART
       // ✅ Save or update user data in DB
-      app.put('/user', async (req, res) => {
+      app.put('/user',verifyToken, async (req, res) => {
         try {
           const user = req.body;
           const query = { email: user?.email };
@@ -91,8 +150,8 @@ async function run() {
       });
 
       
-      // get all users in db
-      app.get('/users', async(req, res) => {
+      // get all users from db
+      app.get('/users', verifyToken, verifyAdmin, async (req, res) => {
         const result = await usersCollection.find().toArray()
          res.send (result)
       })
@@ -105,7 +164,7 @@ async function run() {
       })
 
       // update a user role
-      app.patch('/users/update/:email', async (req, res) => {
+      app.patch('/users/update/:email', verifyToken, verifyAdmin,  async (req, res) => {
         const email = req.params.email
         const user = req.body
         const query = { email }
@@ -117,7 +176,7 @@ async function run() {
       })
 
       // Delete a user by email
-      app.delete('/users/:email', async (req, res) => {
+      app.delete('/users/:email', verifyToken, verifyAdmin, async (req, res) => {
         try {
           const email = req.params.email;
           const result = await usersCollection.deleteOne({ email });
