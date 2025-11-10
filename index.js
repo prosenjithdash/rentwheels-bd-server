@@ -61,16 +61,18 @@ async function run() {
       const usersCollection = client.db('rentWheels_BD').collection('users')
 
       // Verify Admin middleware
-      const verifyAdmin = async (req, res, next) => {
-        const user = req.user
-        const query = { email: user?.email }
-        const result = await usersCollection.findOne(query)
-        if (!result || result?.role !== 'admin') {
-          return res.status(403).send({ message: 'Forbidden: Admin access only' })
-        }
-        next();
+     const verifyAdmin = async (req, res, next) => {
+      const user = req.user;
+      console.log("🔍 Checking admin for:", user?.email);
 
-      };
+      const result = await usersCollection.findOne({ email: user?.email });
+      if (!result || result?.role !== 'admin') {
+        console.log("🚫 Not admin:", result?.role);
+        return res.status(403).send({ message: 'Forbidden: Admin access only' });
+      }
+      next();
+    };
+
        // auth related api
     app.post('/jwt', async (req, res) => {
       const user = req.body
