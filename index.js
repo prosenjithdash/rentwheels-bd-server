@@ -267,8 +267,18 @@ async function run() {
        // Post Booking data
         app.post('/booking',verifyToken, async (req, res) => {
           const bookingData = req.body;
+          // Save room booking info
           const result =await bookingsCollection.insertOne(bookingData)
-          res.send(result)
+          
+          // change vehicle availability status
+          const vehicleId = bookingData?.vehicleId
+          const query = { _id: new ObjectId(vehicleId) }
+          const updateDoc = {
+            $set:{booked: true},
+          }
+          const updatedVehicle = await vehiclesCollection.updateOne( query , updateDoc)
+          
+          res.send({result, updatedVehicle})
 
         })
 
