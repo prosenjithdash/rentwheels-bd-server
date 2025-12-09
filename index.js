@@ -284,7 +284,7 @@ async function run() {
         })
       
       // update vehicle status
-      app.patch('/vehicle/status/:id', async (res, req) => {
+      app.patch('/vehicle/status/:id', async (req, res) => {
         const id = req.params.id
         const status = req.body.status
           const query = { _id: new ObjectId(id) }
