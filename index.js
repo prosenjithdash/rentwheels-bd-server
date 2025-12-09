@@ -270,17 +270,31 @@ async function run() {
           // Save room booking info
           const result =await bookingsCollection.insertOne(bookingData)
           
-          // change vehicle availability status
-          const vehicleId = bookingData?.vehicleId
-          const query = { _id: new ObjectId(vehicleId) }
-          const updateDoc = {
-            $set:{booked: true},
-          }
-          const updatedVehicle = await vehiclesCollection.updateOne( query , updateDoc)
+          // // change vehicle availability status
+          // const vehicleId = bookingData?.vehicleId
+          // const query = { _id: new ObjectId(vehicleId) }
+          // const updateDoc = {
+          //   $set:{booked: true},
+          // }
+          // const updatedVehicle = await vehiclesCollection.updateOne( query , updateDoc)
           
-          res.send({result, updatedVehicle})
+          // res.send({result, updatedVehicle})
+          res.send(result)
 
         })
+      
+      // update vehicle status
+      app.patch('/vehicle/status/:id', async (res, req) => {
+        const id = req.params.id
+        const status = req.body.status
+          const query = { _id: new ObjectId(id) }
+          const updateDoc = {
+            $set:{booked: status},
+          }
+        const result = await vehiclesCollection.updateOne(query, updateDoc)
+        res.send(result)
+
+      })
 
 
       // ✅ Get all vehicles added by a specific host (My Listings)
