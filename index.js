@@ -61,6 +61,9 @@ async function run() {
       const vehiclesCollection = client.db('rentWheels_BD').collection('vehicles')
       // crate database for User collection
       const usersCollection = client.db('rentWheels_BD').collection('users')
+      // crate database for Booking collection
+      const bookingsCollection = client.db('rentWheels_BD').collection('bookings')
+
 
       // Verify Admin middleware
      const verifyAdmin = async (req, res, next) => {
@@ -257,6 +260,14 @@ async function run() {
         app.post('/vehicle',async (req, res) => {
           const vehicleData = req.body;
           const result =await vehiclesCollection.insertOne(vehicleData)
+          res.send(result)
+
+        })
+      
+       // Post Booking data
+        app.post('/booking',verifyToken, async (req, res) => {
+          const bookingData = req.body;
+          const result =await bookingsCollection.insertOne(bookingData)
           res.send(result)
 
         })
