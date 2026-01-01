@@ -4,6 +4,8 @@ const cors = require('cors');
 const jwt = require('jsonwebtoken');
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const cookieParser = require('cookie-parser');
+const req = require('express/lib/request');
+const res = require('express/lib/response');
 const app = express();
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 
@@ -294,6 +296,14 @@ async function run() {
         const result = await vehiclesCollection.updateOne(query, updateDoc)
         res.send(result)
 
+      })
+
+      // get all booking for a render
+      app.get('/my-bookings/:email', verifyToken, async (req, res) => {
+        const email = req.params.email
+        const query = { 'render.email': email }
+        const result = await bookingsCollection.find(query).toArray()
+        res.send(result)
       })
 
 
