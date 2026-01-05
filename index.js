@@ -299,7 +299,7 @@ async function run() {
       })
 
       // get all booking for a render
-      app.get('/my-bookings/:email', verifyToken, async (req, res) => {
+      app.get('/my_bookings/:email', verifyToken, async (req, res) => {
         const email = req.params.email
         const query = { 'render.email': email }
         const result = await bookingsCollection.find(query).toArray()
@@ -307,23 +307,35 @@ async function run() {
       })
 
 
+
+
       // ✅ Get all vehicles added by a specific host (My Listings)
-      app.get('/my_listings/:email', async (req, res) => {
+      app.get('/my_listings/:email', verifyToken, async (req, res) => {
         try {
           const email = req.params.email;
-          let query = { "host.email": email }
+
+          // 1️⃣ Security: make sure user can only access their own listings
+          if (email !== req.user.email) {
+            return res.status(403).send({ message: "Forbidden: Access denied" });
+          }
+
+          // 2️⃣ Query vehicles
+          let query = { "host.email": email };
           const result = await vehiclesCollection.find(query).toArray();
 
+          // 3️⃣ Check if any vehicles exist
           if (!result || result.length === 0) {
             return res.status(404).send({ message: 'No vehicles found for this host' });
           }
 
+          // 4️⃣ Send result
           res.send(result);
         } catch (error) {
           console.error('Error fetching host vehicles:', error);
           res.status(500).send({ message: 'Failed to fetch host vehicles' });
         }
       });
+
 
       // Delete vehicle data 
       app.delete('/vehicle/:id', async (req, res)=> {
