@@ -54,7 +54,7 @@ async function run() {
         // Connect the client to the server	(optional starting in v4.7)
         await client.connect();
         // Send a ping to confirm a successful connection
-        await client.db("admin").command({ ping: 1 });
+        // await client.db("admin").command({ ping: 1 });
         console.log("Pinged your deployment. You successfully RentWheels-BD connected to MongoDB!"); 
 
       
@@ -80,7 +80,7 @@ async function run() {
       next();
     };
 
-       // auth related api
+      // auth related api
     app.post('/jwt', async (req, res) => {
       const user = req.body
       const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, {
@@ -94,6 +94,7 @@ async function run() {
         })
         .send({ success: true })
     })
+      
     // Logout
     app.get('/logout', async (req, res) => {
       try {
@@ -109,8 +110,6 @@ async function run() {
         res.status(500).send(err)
       }
     })
-      
-      
       
       // create-payment-intent
       app.post("/create-payment-intent", verifyToken, async (req, res) => { 
@@ -141,9 +140,9 @@ async function run() {
         // })
 
       
-      // USER PART
-      // ✅ Save or update user data in DB
-      app.put('/user',verifyToken, async (req, res) => {
+    // USER PART
+    // ✅ Save or update user data in DB
+    app.put('/user',verifyToken, async (req, res) => {
         try {
           const user = req.body;
           const query = { email: user?.email };
@@ -180,24 +179,24 @@ async function run() {
           console.error('Error saving user:', error);
           res.status(500).send({ message: 'Failed to save user data' });
         }
-      });
+    });
 
       
-      // get all users from db
-      app.get('/users', verifyToken, verifyAdmin, async (req, res) => {
+    // get all users from db
+    app.get('/users', verifyToken, verifyAdmin, async (req, res) => {
         const result = await usersCollection.find().toArray()
          res.send (result)
-      })
+    })
 
-      // get a user info by email from db
-      app.get('/user/:email', async (req, res) => {
+    // get a user info by email from db
+    app.get('/user/:email', async (req, res) => {
         const email = req.params.email
         const result = await usersCollection.findOne({email})
         res.send(result)
-      })
+    })
 
-      // update a user role
-      app.patch('/users/update/:email', verifyToken, verifyAdmin,  async (req, res) => {
+    // update a user role
+    app.patch('/users/update/:email', verifyToken, verifyAdmin,  async (req, res) => {
         const email = req.params.email
         const user = req.body
         const query = { email }
@@ -206,10 +205,10 @@ async function run() {
         }
         const result = await usersCollection.updateOne(query, updateDoc)
         res.send(result)
-      })
+    })
 
-      // Delete a user by email
-      app.delete('/users/:email', verifyToken, verifyAdmin, async (req, res) => {
+    // Delete a user by email
+    app.delete('/users/:email', verifyToken, verifyAdmin, async (req, res) => {
         try {
           const email = req.params.email;
           const result = await usersCollection.deleteOne({ email });
@@ -223,13 +222,13 @@ async function run() {
           console.error('Error deleting user:', error);
           res.status(500).send({ message: 'Failed to delete user' });
         }
-      });
+    });
 
  
               
-      // VEHICLES PART
-        // get all VEHICLES from database
-        app.get('/vehicles', async (req, res) => {
+    // VEHICLES PART
+    // get all VEHICLES from database
+    app.get('/vehicles', async (req, res) => {
             const category = req.query.category
             // console.log(category)
             let query = {}
@@ -238,10 +237,10 @@ async function run() {
             }
             const result = await vehiclesCollection.find(query).toArray();
             res.send(result);
-        })
+    })
 
-        // get single VEHICLE from database
-        app.get('/vehicle/:id', async (req, res) => {
+    // get single VEHICLE from database
+    app.get('/vehicle/:id', async (req, res) => {
         const id = req.params.id;
 
         if (!ObjectId.isValid(id)) {
@@ -256,18 +255,18 @@ async function run() {
         }
 
         res.send(result);
-        });
+    });
       
-        // Post Vehicle data
-        app.post('/vehicle',async (req, res) => {
+    // Post Vehicle data
+    app.post('/vehicle',async (req, res) => {
           const vehicleData = req.body;
           const result =await vehiclesCollection.insertOne(vehicleData)
           res.send(result)
 
-        })
+    })
       
-       // Post Booking data
-        app.post('/booking',verifyToken, async (req, res) => {
+    // Post Booking data
+    app.post('/booking',verifyToken, async (req, res) => {
           const bookingData = req.body;
           // Save room booking info
           const result =await bookingsCollection.insertOne(bookingData)
@@ -283,10 +282,10 @@ async function run() {
           // res.send({result, updatedVehicle})
           res.send(result)
 
-        })
+    })
       
-      // update vehicle status
-      app.patch('/vehicle/status/:id', async (req, res) => {
+    // update vehicle status
+    app.patch('/vehicle/status/:id', async (req, res) => {
         const id = req.params.id
         const status = req.body.status
           const query = { _id: new ObjectId(id) }
@@ -296,15 +295,25 @@ async function run() {
         const result = await vehiclesCollection.updateOne(query, updateDoc)
         res.send(result)
 
-      })
+    })
 
-      // get all booking for a render
-      app.get('/my_bookings/:email', verifyToken, async (req, res) => {
+    // get all booking for a render
+    app.get('/my_bookings/:email', verifyToken, async (req, res) => {
         const email = req.params.email
         const query = { 'render.email': email }
         const result = await bookingsCollection.find(query).toArray()
         res.send(result)
       })
+
+    
+    // Delete my_booking vehicle data 
+    app.delete('/booking/:id',verifyToken, async (req, res)=> {
+      const id = req.params.id;
+      const query = {_id:new ObjectId(id)}
+      const result = await bookingsCollection.deleteOne(query)
+        res.send(result)
+      })
+
 
 
 
@@ -337,8 +346,8 @@ async function run() {
       });
 
 
-      // Delete vehicle data 
-      app.delete('/vehicle/:id', async (req, res)=> {
+      // Delete vehicle data from my_listings table
+      app.delete('/vehicle/:id',verifyToken, async (req, res)=> {
         const id = req.params.id;
         const query = {_id:new ObjectId(id)}
         const result = await vehiclesCollection.deleteOne(query)
