@@ -312,6 +312,14 @@ async function run() {
       const query = {_id:new ObjectId(id)}
       const result = await bookingsCollection.deleteOne(query)
         res.send(result)
+    })
+      
+     // get all bookings for a host
+    app.get('/manage_bookings/:email', verifyToken, async (req, res) => {
+        const email = req.params.email
+        const query = { 'host.email': email }
+        const result = await bookingsCollection.find(query).toArray()
+        res.send(result)
       })
 
 
