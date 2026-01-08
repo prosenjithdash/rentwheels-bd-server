@@ -320,6 +320,25 @@ async function run() {
         const query = { 'host.email': email }
         const result = await bookingsCollection.find(query).toArray()
         res.send(result)
+    })
+      
+      
+      // Admin Statistics route
+      app.get('/admin_stat', async (req, res) => {
+        const bookingDetails = await bookingsCollection.find({}, {
+          projection: {
+            date: 1,
+            price: 1,
+
+          }
+        }).toArray()
+
+        const totalUsers = await usersCollection.countDocuments()
+        const totalRooms = await vehiclesCollection.countDocuments()
+        const totalPrice = bookingDetails.reduce((sum, booking) => sum + booking.price, 0)
+
+        console.log(bookingDetails)
+        res.send({totalBookings: bookingDetails.length, totalUsers, totalRooms, totalPrice})
       })
 
 
