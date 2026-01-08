@@ -337,8 +337,25 @@ async function run() {
         const totalRooms = await vehiclesCollection.countDocuments()
         const totalPrice = bookingDetails.reduce((sum, booking) => sum + booking.price, 0)
 
+        const chartData = bookingDetails.map(booking => {
+          const day = new Date(booking.date).getDate()
+          const month = new Date(booking.date).getMonth() + 1
+          const data = [`${day}/${month}`, booking?.price]
+          return data
+        })
+        chartData.unshift(['Day', 'Sales'])
+
+        console.log(chartData)
         console.log(bookingDetails)
-        res.send({totalBookings: bookingDetails.length, totalUsers, totalRooms, totalPrice})
+
+        res.send(
+          {
+            totalBookings: bookingDetails.length,
+            totalUsers,
+            totalRooms,
+            totalPrice,
+            chartData
+          })
       })
 
 
