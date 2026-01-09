@@ -80,7 +80,7 @@ async function run() {
       next();
      };
       
-      // Verify Admin middleware
+      // Verify Host middleware
      const verifyHost = async (req, res, next) => {
       const user = req.user;
       console.log("🔍 Checking host for:", user?.email);
@@ -89,6 +89,19 @@ async function run() {
       if (!result || result?.role !== 'host') {
         console.log("🚫 Not host:", result?.role);
         return res.status(403).send({ message: 'Forbidden: Host access only' });
+      }
+      next();
+     };
+      
+      // Verify Render middleware
+     const verifyRender = async (req, res, next) => {
+      const user = req.user;
+      console.log("🔍 Checking render for:", user?.email);
+
+      const result = await usersCollection.findOne({ email: user?.email });
+      if (!result || result?.role !== 'render') {
+        console.log("🚫 Not render:", result?.role);
+        return res.status(403).send({ message: 'Forbidden: Render access only' });
       }
       next();
     };
@@ -374,7 +387,7 @@ async function run() {
 
         
       // Host Statistics API route
-      app.get('/host_stat', async (req, res) => {
+      app.get('/host_stat',verifyToken,verifyHost, async (req, res) => {
         const bookingDetails = await bookingsCollection.find({}, {
           projection: {
             date: 1,
