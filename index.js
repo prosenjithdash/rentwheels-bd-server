@@ -78,6 +78,19 @@ async function run() {
         return res.status(403).send({ message: 'Forbidden: Admin access only' });
       }
       next();
+     };
+      
+      // Verify Admin middleware
+     const verifyHost = async (req, res, next) => {
+      const user = req.user;
+      console.log("🔍 Checking host for:", user?.email);
+
+      const result = await usersCollection.findOne({ email: user?.email });
+      if (!result || result?.role !== 'host') {
+        console.log("🚫 Not host:", result?.role);
+        return res.status(403).send({ message: 'Forbidden: Host access only' });
+      }
+      next();
     };
 
       // auth related api
@@ -323,8 +336,8 @@ async function run() {
     })
       
       
-      // Admin Statistics route
-      app.get('/admin_stat', async (req, res) => {
+      // Admin Statistics API route
+      app.get('/admin_stat', verifyToken, verifyAdmin,async (req, res) => {
         const bookingDetails = await bookingsCollection.find({}, {
           projection: {
             date: 1,
@@ -358,6 +371,42 @@ async function run() {
           })
       })
 
+
+        
+      // Host Statistics API route
+      app.get('/host_stat', async (req, res) => {
+        const bookingDetails = await bookingsCollection.find({}, {
+          projection: {
+            date: 1,
+            price: 1,
+
+          }
+        }).toArray()
+
+        const totalUsers = await usersCollection.countDocuments()
+        const totalRooms = await vehiclesCollection.countDocuments()
+        const totalSales = bookingDetails.reduce((sum, booking) => sum + booking.price, 0)
+
+        const chartData = bookingDetails.map(booking => {
+          const day = new Date(booking.date).getDate()
+          const month = new Date(booking.date).getMonth() + 1
+          const data = [`${day}/${month}`, booking?.price]
+          return data
+        })
+        chartData.unshift(['Day', 'Sales'])
+
+        console.log(chartData)
+        console.log(bookingDetails)
+
+        res.send(
+          {
+            totalBookings: bookingDetails.length,
+            totalUsers,
+            totalRooms,
+            totalSales,
+            chartData
+          })
+      })
 
 
 
