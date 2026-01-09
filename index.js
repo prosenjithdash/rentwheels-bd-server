@@ -335,7 +335,7 @@ async function run() {
 
         const totalUsers = await usersCollection.countDocuments()
         const totalRooms = await vehiclesCollection.countDocuments()
-        const totalPrice = bookingDetails.reduce((sum, booking) => sum + booking.price, 0)
+        const totalSales = bookingDetails.reduce((sum, booking) => sum + booking.price, 0)
 
         const chartData = bookingDetails.map(booking => {
           const day = new Date(booking.date).getDate()
@@ -353,7 +353,7 @@ async function run() {
             totalBookings: bookingDetails.length,
             totalUsers,
             totalRooms,
-            totalPrice,
+            totalSales,
             chartData
           })
       })
