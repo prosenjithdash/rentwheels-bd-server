@@ -360,7 +360,7 @@ async function run() {
         }).toArray()
 
         const totalUsers = await usersCollection.countDocuments()
-        const totalRooms = await vehiclesCollection.countDocuments()
+        const totalVehicles = await vehiclesCollection.countDocuments()
         const totalSales = bookingDetails.reduce((sum, booking) => sum + booking.price, 0)
 
         const chartData = bookingDetails.map(booking => {
@@ -378,7 +378,7 @@ async function run() {
           {
             totalBookings: bookingDetails.length,
             totalUsers,
-            totalRooms,
+            totalVehicles,
             totalSales,
             chartData
           })
@@ -387,18 +387,24 @@ async function run() {
 
         
       // Host Statistics API route
-      app.get('/host_stat',verifyToken,verifyHost, async (req, res) => {
-        const bookingDetails = await bookingsCollection.find({}, {
-          projection: {
+      app.get('/host_stat', verifyToken, verifyHost, async (req, res) => {
+        const {email} = req.user
+        const bookingDetails = await bookingsCollection.find(
+          {'host.email': email},
+          {
+            projection: {
             date: 1,
             price: 1,
 
           }
         }).toArray()
 
-        const totalUsers = await usersCollection.countDocuments()
-        const totalRooms = await vehiclesCollection.countDocuments()
+        const totalVehicles = await vehiclesCollection.countDocuments(
+          {'host.email': email}
+        )
         const totalSales = bookingDetails.reduce((sum, booking) => sum + booking.price, 0)
+
+        const {timestamp} = await usersCollection.findOne({email},{projection:{timestamp:1}})
 
         const chartData = bookingDetails.map(booking => {
           const day = new Date(booking.date).getDate()
@@ -414,10 +420,10 @@ async function run() {
         res.send(
           {
             totalBookings: bookingDetails.length,
-            totalUsers,
-            totalRooms,
+            totalVehicles,
             totalSales,
-            chartData
+            chartData,
+            hostSince: timestamp
           })
       })
 
