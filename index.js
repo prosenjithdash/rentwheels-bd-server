@@ -428,6 +428,45 @@ async function run() {
       })
 
 
+      // Render Statistics API route
+      app.get('/render_stat', verifyToken, async (req, res) => {
+        const {email} = req.user
+        const bookingDetails = await bookingsCollection.find(
+          {'render.email': email},
+          {
+            projection: {
+            date: 1,
+            price: 1,
+
+          }
+        }).toArray()
+
+        const totalSales = bookingDetails.reduce((sum, booking) => sum + booking.price, 0)
+
+        const {timestamp} = await usersCollection.findOne({email},{projection:{timestamp:1}})
+
+        const chartData = bookingDetails.map(booking => {
+          const day = new Date(booking.date).getDate()
+          const month = new Date(booking.date).getMonth() + 1
+          const data = [`${day}/${month}`, booking?.price]
+          return data
+        })
+        chartData.unshift(['Day', 'Sales'])
+
+        console.log(chartData)
+        console.log(bookingDetails)
+
+        res.send(
+          {
+            totalBookings: bookingDetails.length,
+            totalSales,
+            chartData,
+            renderSince: timestamp
+          })
+      })
+
+
+
 
 
       // ✅ Get all vehicles added by a specific host (My Listings)
