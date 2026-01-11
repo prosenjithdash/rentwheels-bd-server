@@ -310,6 +310,17 @@ async function run() {
 
     })
       
+      //Update vehicle data API route
+      app.put('/vehicle/update/:id',verifyToken, verifyHost, async (req, res) => {
+        const id = req.params.id
+        const vehicleData = req.body
+        const query = { _id: new ObjectId(id) }
+        const updateDoc = {
+          $set: vehicleData,
+        }
+        const result = await vehiclesCollection.updateOne(query, updateDoc)
+        res.send(result)
+      })
     // update vehicle status
     app.patch('/vehicle/status/:id', async (req, res) => {
         const id = req.params.id
