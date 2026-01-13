@@ -11,7 +11,7 @@ const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 
 const port = process.env.PORT || 8000;
 
-// 🧩 Middleware
+// Middleware
 app.use(cors({
   origin: ['http://localhost:5173', 'http://localhost:5174'],
   credentials: true,
@@ -31,7 +31,7 @@ const client = new MongoClient(uri, {
   }
 });
 
-// 🛡️ Verify JWT Token Middleware
+// Verify JWT Token Middleware
 const verifyToken = async (req, res, next) => {
   const token = req.cookies?.token;
   console.log(token)
