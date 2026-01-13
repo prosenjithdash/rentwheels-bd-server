@@ -164,7 +164,6 @@ async function run() {
         //     const result = await vehiclesCollection.find().toArray();
         //     res.send(result);
         // })
-
       
     // USER PART
     // ✅ Save or update user data in DB
@@ -207,7 +206,6 @@ async function run() {
         }
     });
 
-      
     // get all users from db
     app.get('/users', verifyToken, verifyAdmin, async (req, res) => {
         const result = await usersCollection.find().toArray()
@@ -249,9 +247,7 @@ async function run() {
           res.status(500).send({ message: 'Failed to delete user' });
         }
     });
-
- 
-              
+    
     // VEHICLES PART
     // get all VEHICLES from database
     app.get('/vehicles', async (req, res) => {
@@ -342,7 +338,6 @@ async function run() {
         res.send(result)
       })
 
-    
     // Delete my_booking vehicle data 
     app.delete('/booking/:id',verifyToken, async (req, res)=> {
       const id = req.params.id;
@@ -358,7 +353,6 @@ async function run() {
         const result = await bookingsCollection.find(query).toArray()
         res.send(result)
     })
-      
       
       // Admin Statistics API route
       app.get('/admin_stat', verifyToken, verifyAdmin,async (req, res) => {
@@ -395,8 +389,6 @@ async function run() {
           })
       })
 
-
-        
       // Host Statistics API route
       app.get('/host_stat', verifyToken, verifyHost, async (req, res) => {
         const {email} = req.user
@@ -438,7 +430,6 @@ async function run() {
           })
       })
 
-
       // Render Statistics API route
       app.get('/render_stat', verifyToken, async (req, res) => {
         const {email} = req.user
@@ -476,10 +467,6 @@ async function run() {
           })
       })
 
-
-
-
-
       // ✅ Get all vehicles added by a specific host (My Listings)
       app.get('/my_listings/:email', verifyToken, async (req, res) => {
         try {
@@ -507,7 +494,6 @@ async function run() {
         }
       });
 
-
       // Delete vehicle data from my_listings table
       app.delete('/vehicle/:id',verifyToken, async (req, res)=> {
         const id = req.params.id;
@@ -516,20 +502,12 @@ async function run() {
         res.send(result)
       })
 
-
-
-
-
-
-
-
   } finally {
     // Ensures that the client will close when you finish/error
     // await client.close();
   }
 }
 run().catch(console.dir);
-
 
 // This is my root route
 app.get('/', (req, res) => {
@@ -539,8 +517,6 @@ app.get('/', (req, res) => {
 app.listen(port, () => {
   console.log(`RentWheels-BD app listening on port ${port}`)
 })
-
-
 
 // It's a backend project server -> Project name is RentWheels-BD
 // I will at first apply nodeJS, expressJS, MongoDB Atlas, and for try use just mongoose.
