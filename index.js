@@ -503,8 +503,6 @@ async function run() {
       })
 
   } finally {
-    // Ensures that the client will close when you finish/error
-    // await client.close();
   }
 }
 run().catch(console.dir);
@@ -517,9 +515,3 @@ app.get('/', (req, res) => {
 app.listen(port, () => {
   console.log(`RentWheels-BD app listening on port ${port}`)
 })
-
-// It's a backend project server -> Project name is RentWheels-BD
-// I will at first apply nodeJS, expressJS, MongoDB Atlas, and for try use just mongoose.
-// Futures part is => Data GET, POST, UPDATE & DELETE, GET SINGLE DATA, SINGLE DATA UPDATE OR DELETE.
-
-// Also applied here JWT 
