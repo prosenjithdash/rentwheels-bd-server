@@ -30,6 +30,7 @@ const client = new MongoClient(uri, {
   }
 });
 
+
 // Verify JWT Token Middleware
 const verifyToken = async (req, res, next) => {
   const token = req.cookies?.token;
