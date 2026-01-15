@@ -19,7 +19,6 @@ app.use(cors({
 app.use(express.json());
 app.use(cookieParser());
 
-
 // MongoDB Connection
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.kybpity.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
 
