@@ -228,7 +228,8 @@ async function run() {
           $set: { ...user, timestamp: Date.now() },
         }
         const result = await usersCollection.updateOne(query, updateDoc)
-        res.send(result)
+      res.send(result)
+      
     })
 
     // Delete a user by email
@@ -313,6 +314,7 @@ async function run() {
         const query = { _id: new ObjectId(id) }
         const updateDoc = {
           $set: vehicleData,
+          
         }
         const result = await vehiclesCollection.updateOne(query, updateDoc)
         res.send(result)
