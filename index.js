@@ -313,8 +313,9 @@ async function run() {
         const vehicleData = req.body
         const query = { _id: new ObjectId(id) }
         const updateDoc = {
-          $set: vehicleData,
           
+          $set: vehicleData,
+
         }
         const result = await vehiclesCollection.updateOne(query, updateDoc)
         res.send(result)
