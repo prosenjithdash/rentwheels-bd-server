@@ -317,6 +317,7 @@ async function run() {
         const updateDoc = {
 
           $set: vehicleData,
+          
 
         }
         const result = await vehiclesCollection.updateOne(query, updateDoc)
