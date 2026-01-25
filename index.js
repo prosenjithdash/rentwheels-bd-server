@@ -313,11 +313,12 @@ async function run() {
         const id = req.params.id
         const vehicleData = req.body
         const query = { _id: new ObjectId(id) }
+        
 
         const updateDoc = {
 
           $set: vehicleData,
-          
+
 
         }
         const result = await vehiclesCollection.updateOne(query, updateDoc)
