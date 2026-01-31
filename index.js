@@ -45,6 +45,21 @@ const sendEmail = async (emailAddress, emailData) => {
     },
   });
 
+  const mailBody = {
+    from: `"RentWheels_BD" <${process.env.TRANSPORTER_EMAIL}>`,
+    to: emailAddress,
+    subject: emailData.subject,
+    html: emailData.message, // HTML version of the message
+  } 
+   transporter.sendMail(mailBody, (error, info) => {
+    if (error) {
+     console.log(error)
+    } else {
+      console.log('Email Sent: ' + info.response)
+   }
+ });
+
+
 }
 // Verify JWT Token Middleware
 const verifyToken = async (req, res, next) => {
