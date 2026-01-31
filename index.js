@@ -32,7 +32,7 @@ const client = new MongoClient(uri, {
 });
 
 // Send Email 
-const sendEmail = async (emailAddress, emailData) => {
+const sendEmail =  (emailAddress, emailData) => {
   
   const transporter = nodemailer.createTransport({
     service: "gmail",
@@ -333,15 +333,11 @@ async function run() {
           // Save room booking info
           const result =await bookingsCollection.insertOne(bookingData)
           
-          // // change vehicle availability status
-          // const vehicleId = bookingData?.vehicleId
-          // const query = { _id: new ObjectId(vehicleId) }
-          // const updateDoc = {
-          //   $set:{booked: true},
-          // }
-          // const updatedVehicle = await vehiclesCollection.updateOne( query , updateDoc)
-          
-          // res.send({result, updatedVehicle})
+      // send email to render
+      sendEmail(bookingData?.render?.email, {
+        subject: 'Booking Successful!',
+        message: `You have successfully booked a vehicle through RentWheels_BD . Transaction Id: ${bookingData?.transactionId}`
+      })
           res.send(result)
 
     })
