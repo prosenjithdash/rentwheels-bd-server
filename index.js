@@ -338,7 +338,14 @@ async function run() {
         subject: 'Booking Successful!',
         message: `You have successfully booked a vehicle through RentWheels_BD . Transaction Id: ${bookingData?.transactionId}`
       })
-          res.send(result)
+
+      // send email to host
+      sendEmail(bookingData?.host?.email, {
+        subject: 'Your vehicle got booked!',
+        message: `Get ready to welcome ${bookingData?.render.name}`
+      })
+      
+      res.send(result)
 
     })
       
