@@ -8,6 +8,7 @@ const req = require('express/lib/request');
 const res = require('express/lib/response');
 const app = express();
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
+const nodemailer = require("nodemailer");
 
 const port = process.env.PORT || 8000;
 
@@ -30,7 +31,21 @@ const client = new MongoClient(uri, {
   }
 });
 
+// Send Email 
+const sendEmail = async (emailAddress, emailData) => {
+  
+  const transporter = nodemailer.createTransport({
+    service: "gmail",
+    host: "smtp.gmail.com",
+    port: 587,
+    secure: false, 
+    auth: {
+      user: process.env.TRANSPORTER_EMAIL,
+      pass: process.env.TRANSPORTER_PASS,
+    },
+  });
 
+}
 // Verify JWT Token Middleware
 const verifyToken = async (req, res, next) => {
   const token = req.cookies?.token;
@@ -313,7 +328,7 @@ async function run() {
         
         const id = req.params.id
         const vehicleData = req.body
-        
+
         const query = { _id: new ObjectId(id) }
 
 
