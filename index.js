@@ -45,6 +45,15 @@ const sendEmail = async (emailAddress, emailData) => {
     },
   });
 
+  // verify transporter
+  transporter.verify(function (error, success)  {
+  if (error) {
+    console.error(error);
+  } else {
+    console.log("Server is ready to take our messages");
+  }
+});
+
   const mailBody = {
     from: `"RentWheels_BD" <${process.env.TRANSPORTER_EMAIL}>`,
     to: emailAddress,
