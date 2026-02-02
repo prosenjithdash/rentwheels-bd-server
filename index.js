@@ -238,6 +238,12 @@ async function run() {
           };
 
           const result = await usersCollection.updateOne(query, updateDoc, options);
+          
+        // send email for Welcome new user
+          sendEmail(user?.email, {
+          subject: 'Welcome to RentWheels_BD!',
+          message: 'Browse vehicle and book them.'
+        })
           res.send(result);
         } catch (error) {
           console.error('Error saving user:', error);
@@ -344,7 +350,7 @@ async function run() {
         subject: 'Your vehicle got booked!',
         message: `Get ready to welcome ${bookingData?.render.name}`
       })
-      
+
       res.send(result)
 
     })
